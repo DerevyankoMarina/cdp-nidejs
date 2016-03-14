@@ -3,13 +3,12 @@ var url = require("url"),
     fs = require("fs"),
     db = require("../fake-db");
 
-function staticContent(request, response) {
+function getStaticContent(request, response) {
 
   var uri = url.parse(request.url).pathname,
       filename = path.join(process.cwd(), uri);
-//  console.log("process.cwd(): " + process.cwd());
 
-  fs.exists(filename, function (exists) {
+  fs.exists(filename, (exists) => {
     if (!exists) {
       response.writeHead(404, {"Content-Type": "text/plain"});
       response.write("404 Not Found\n");
@@ -21,14 +20,10 @@ function staticContent(request, response) {
       filename += 'views/index.html';
     }
 
-    fs.readFile(filename, "binary", function (err, file) {
+    fs.readFile(filename, "binary", (err, file) => {
       if (err) {
-        response.writeHead(500, {"Content-Type": "text/plain"});
-        response.write(err + "\n");
-        response.end();
-        return;
+        generateErr(response);
       }
-
       response.writeHead(200);
       response.write(file, "binary");
       response.end();
@@ -36,21 +31,23 @@ function staticContent(request, response) {
   });
 }
 
-function getUsers() {
-  var data = "";
+function getUsers(request, response) {
+  var users = "";
 
   request.on("data", (data) => {
-    user += data;
+    users += data;
   });
 
-  db.getCollection(function(err, collection){
-    if(err) {
-      console.log(err);
-      return;
-    }
-    console.log(collection);
+  request.on("end", () => {
+    var collection = users || "";
+    db.getCollection( (err, collection) => {
+      if(err) {
+        generateErr(response);
+      }
+      response.writeHead(200);
+      response.end(JSON.stringify(collection));
+    })
   })
-
 }
 
 function createUser(request, response) {
@@ -61,77 +58,65 @@ function createUser(request, response) {
     user += data;
   });
 
-  request.on('end', () => {
+  request.on("end", () => {
     var model = JSON.parse(user);
-
     db.create( model, (err, data) => {
       if (err) {
-        response.writeHeader(500);
-        response.end("No records has been found");
+        generateErr(response);
       } else {
         response.writeHead(200);
         response.end(JSON.stringify(data));
       }
     });
+  });
+}
 
+function updateUser(request, response) {
+  var user = "";
+
+  request.on("data", (data) => {
+    user += data;
   });
 
+  request.on("end", () => {
+    var model = JSON.parse(user);
+    db.update(model, (err, updatedUser) => {
+      if(err) {
+        generateErr(response);
+      }
+      response.writeHead(200);
+      response.end(JSON.stringify(updatedUser));
+    })
+  })
 }
 
-function update(res) {
-  console.log("Request handler 'update' was called.");
-
+function removeUser(userId, response) {
+  db.remove(userId, (err) => {
+    if(err) {
+      generateErr(response);
+    }
+    console.log('success')
+  })
 }
 
-function remove(res) {
-  console.log("Request handler 'remove' was called.");
-
+function getById(response, userId) {
+  db.getById(userId, (err, model) => {
+    if(err) {
+      generateErr(response);
+    }
+    response.writeHead(200);
+    response.end(JSON.stringify(model));
+  })
 }
 
-function getById(res) {
-  console.log("Request handler 'getById' was called.");
-
+function generateErr(response) {
+  response.writeHeader(500);
+  response.end("No records has been found");
 }
 
-
-
-exports.staticContent = staticContent;
+exports.getStaticContent = getStaticContent;
 exports.getUsers = getUsers;
 exports.createUser = createUser;
-exports.update = update;
-exports.remove = remove;
+exports.updateUser = updateUser;
+exports.removeUser = removeUser;
 exports.getById = getById;
-
-
-/*
-
-module.exports = function(req, res) {
-  var method = req.method;
-  console.log(method);
-
-}
-
-
-var DB = require("../fake-db");
-
-
-function getUsers(res) {
-  db.getCollection(function (err, result) {
-    if (err) {
-      res.statusCode = 404;
-      res.end();
-    } else {
-      res.writeHeader();
-      res.end(JSON.stringify(result));
-    }
-  });
-}
-
-
-
-
-function create(res) {
-
-}
-
-*/

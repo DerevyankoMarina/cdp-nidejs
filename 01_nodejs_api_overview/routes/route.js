@@ -3,21 +3,33 @@ var url = require("url"),
     fs = require("fs"),
     requestHandlers = require("./requestHandlers");
 
-function route(pathname, request, responce, userId) {
-  var method = request.method;
+function route(pathname, method, request, response, userId) {
 
-  console.log("About to route a request for " + pathname);
+  var id = /^\/api\/users\/\w{5,}$/;
 
   if (method === "GET") {
+
     if (pathname === "/api/users") {
-      requestHandlers.getUsers(request, responce);
+      requestHandlers.getUsers(request, response);
+
+    } else if( id.test(pathname) ) {
+      requestHandlers.getById(response, userId);
+
     } else {
-      requestHandlers.staticContent(request, responce);
+      requestHandlers.getStaticContent(request, response);
     }
+
   } else  if (method === "POST") {
-    requestHandlers.createUser(request, responce);
+    requestHandlers.createUser(request, response);
+
+  } else if(method === "DELETE") {
+    requestHandlers.removeUser(userId, response);
+
+  } else if(method === "PUT" && id.test(pathname)) {
+    requestHandlers.updateUser(request, response);
+
   } else {
-  console.log("No request handler found for " + pathname);
+    console.log("No request handler found for " + pathname);
   }
 }
 
