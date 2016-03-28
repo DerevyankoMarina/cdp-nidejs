@@ -1,43 +1,49 @@
 var express = require('express');
 var router = express.Router();
+var User = require('../../models/user').User;
 
-var User = require('../../models/user');
+/* GET users */
+router.get('/api/users', function(req, res, next) {
 
-/* GET users listing. */
-/*
-router.get('/', function(req, res, next) {
-    var searchCriterias = {};
 
-    if(req.query.searchBy && req.query.searchValue){
-        searchCriterias[req.query.searchBy] = {
-            '$regex': req.query.searchValue,
-            '$options': 'i'
-        };
+    var searchCriterias = {},
+        sortQuery = {};
+
+    var sortBy = req.query.sortBy,
+        sortDir = req.query.sortDir,
+        perPage = req.query.perPage,
+        offset = req.query.offset,
+        searchValue = req.query.searchValue,
+        searchBy = req.query.searchBy;
+
+    sortQuery[sortBy] = sortDir;
+
+    if(searchBy && searchValue) {
+        searchCriterias[searchBy] = searchValue;
     }
 
-    var query = User.find(searchCriterias)
-        .sort((req.query.sortDir === 'asc' ? '' : '-') + req.query.sortBy);
-
-    query.count(function(err, count){
-        query.skip(req.query.perPage * (req.query.offset - 1))
-        .limit(req.query.perPage)
-        .exec('find', function(err, matchedUsers){
-            if(err){
-                res.status(500).json(err);
-            } else{
+    User.find(searchCriterias)
+      .sort(sortQuery)
+      .skip(perPage * (offset - 1))
+      .limit(parseInt(perPage))
+      .exec(function(err, users) {
+        if (err) {
+            res.status(500).json(err);
+        } else {
+            User.count({}, function (err, count) {
                 res.json({
-                    collection: matchedUsers,
-                    total: count
+                    'collection': users,
+                    'total': count
                 });
-            }
-        })
-    })
+            });
+        }
+    });
 });
-*/
 
 /* GET particular user by ID */
 router.get('/api/users/:id', function(req, res, next) {
     User.findById(req.params.id, function(err, user){
+
         if(err){
             res.status(500).json(err);
         } else{
@@ -48,7 +54,6 @@ router.get('/api/users/:id', function(req, res, next) {
 
 /* create user */
 router.post('/api/users', function(req, res, next) {
-    console.log(req.body);
     User.create(req.body, function (err, user) {
         if(err){
             res.status(500).json(err);

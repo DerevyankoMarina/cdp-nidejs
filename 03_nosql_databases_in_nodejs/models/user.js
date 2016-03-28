@@ -10,8 +10,8 @@ var schema = new Schema({
     },
     lastName: {
         type: String,
-        trim: true//,
-        //required: 'Last Name is required'
+        trim: true,
+        required: 'Last Name is required'
     },
     company: {
         type: String,
@@ -23,15 +23,15 @@ var schema = new Schema({
     },
     email: {
         type: String,
-        trim: true//,
-        //required: 'Email address is required',
-        //match: [/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/, 'Please fill a valid email address']
+        trim: true,
+        required: 'Email address is required',
+        match: [/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/, 'Please fill a valid email address']
     },
     phoneNumber: {
         type: String,
-        trim: true//,
-        //required: 'Phone Number is required!',
-        //match: [/^[\d\(\)\-\+\s]+$/, 'Please fill a valid phone number']
+        trim: true,
+        required: 'Phone Number is required!',
+        match: [/^[\d\(\)\-\+\s]+$/, 'Please fill a valid phone number']
     }
 });
 
@@ -47,4 +47,4 @@ schema.set('toJSON', {
     }
 });
 
-module.exports = mongoose.model('User', schema);
+exports.User = mongoose.model('User', schema);

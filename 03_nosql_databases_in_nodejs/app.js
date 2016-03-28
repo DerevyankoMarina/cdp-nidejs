@@ -9,7 +9,7 @@ const users = require('./routes/services/users');
 const app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.normalize(path.join(__dirname, 'views')));
 app.set('view engine', 'ejs');
 
 app.use(express.static(__dirname + '/public'));
@@ -33,4 +33,4 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(3000);
-console.log( "Express server http://localhost:3000" );
+console.log( "Express server http://localhost:3000/" );

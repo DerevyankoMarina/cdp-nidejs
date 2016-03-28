@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/cdp-task3');
+mongoose.connect('mongodb://localhost/cdptask3');
 
 module.exports = mongoose;
