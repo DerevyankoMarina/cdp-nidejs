@@ -6,9 +6,16 @@
     <link rel='stylesheet' href='/css/style.css' />
 </head>
 <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
 
+    <% if (user.get('role') == 'admin') { %>
+    <p><a href="/admin">admin panel</a></p>
+    <% } %>
+
+    <h1>Welcome to <%= title %></h1>
+
+    <a href="/api/credentials/logout" class="btn btn-primary">logout</a>
+    <br/>
+    <br/>
     <div class="users-list"></div>
 
     <script src="/js/libs/require.js" data-main="/js/app/app.js"></script>
