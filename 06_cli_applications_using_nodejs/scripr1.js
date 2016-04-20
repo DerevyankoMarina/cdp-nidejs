@@ -1,0 +1,1 @@
+function sun(n,u){return n+u}

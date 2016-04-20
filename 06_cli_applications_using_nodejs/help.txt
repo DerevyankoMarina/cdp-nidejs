@@ -1,0 +1,8 @@
+JS compiler accept such arguments:
+	--help - Show help
+	--src=Path - set source path
+	--dest=Path - set destination path
+	-c - combine all files into one compressed
+
+You can also use jscompiler without arguments. In this case you will be 
+interactively asked to provide source and destination of files.
